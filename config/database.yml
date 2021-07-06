@@ -1,6 +1,8 @@
 pg: &pg
   adapter: postgresql
   encoding: unicode
+  host: docker.for.mac.localhost
+  username: omaik
   pool: 30
 
 development:
