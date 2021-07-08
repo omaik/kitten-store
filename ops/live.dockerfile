@@ -2,7 +2,7 @@ FROM ruby:2.4.9-alpine AS GEMS
 
 RUN apk add --update --no-cache build-base postgresql-dev
 
-RUN gem install bundler -v 1.17.3
+RUN gem install bundler
 COPY Gemfile Gemfile.lock /app/
 
 WORKDIR /app
