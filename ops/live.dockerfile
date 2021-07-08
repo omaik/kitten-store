@@ -1,4 +1,4 @@
-FROM ruby:2.7.3-alpine3.13 AS GEMS
+FROM ruby:2.4.9-alpine AS GEMS
 
 RUN apk add --update --no-cache build-base postgresql-dev
 
@@ -9,7 +9,7 @@ WORKDIR /app
 
 RUN bundle install --no-cache
 
-FROM ruby:2.7.3-alpine3.13
+FROM ruby:2.4.9-alpine
 
 RUN apk add --update --no-cache postgresql-client
 
