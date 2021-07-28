@@ -9,3 +9,11 @@ output "gw_id" {
 output "rt_id" {
   value = aws_route_table.my_route_public.id
 }
+
+output "subnet_ids" {
+  value = aws_subnet.my_subnet[*].id
+}
+
+output "availability_zones" {
+  value = aws_subnet.my_subnet[*].availability_zone
+}
