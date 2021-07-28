@@ -1,0 +1,4 @@
+aws s3 cp Gemfile s3://my-bucket-oleh/files/
+
+
+aws s3 ls my-bucket-oleh/files/

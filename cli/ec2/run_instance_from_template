@@ -1,0 +1,1 @@
+aws ec2 run-instances --launch-template LaunchTemplateId=lt-02015d463fb392218 --instance-type t2.micro --region us-east-2
