@@ -34,37 +34,6 @@ resource "aws_route_table" "my_route_public" {
   }
 }
 
-# resource "aws_subnet" "my_subnet_1" {
-#   vpc_id     = aws_vpc.my_vpc.id
-#   cidr_block = cidrsubnet(var.cidr_block, 8, 1)
-#   availability_zone = element(data.aws_availability_zones.available.names, 0)
-
-#   tags = {
-#     Name = "MySubnet-public-1"
-#   }
-# }
-
-# resource "aws_route_table_association" "route_subnet_1" {
-#   subnet_id      = aws_subnet.my_subnet_1.id
-#   route_table_id = aws_route_table.my_route_public.id
-# }
-
-# resource "aws_subnet" "my_subnet_2" {
-#   vpc_id     = aws_vpc.my_vpc.id
-#   cidr_block = cidrsubnet(var.cidr_block, 8, 2)
-#   availability_zone = element(data.aws_availability_zones.available.names, 1)
-
-#   tags = {
-#     Name = "MySubnet-public-2"
-#   }
-# }
-
-# resource "aws_route_table_association" "route_subnet_2" {
-#   subnet_id      = aws_subnet.my_subnet_2.id
-#   route_table_id = aws_route_table.my_route_public.id
-# }
-
-
 resource "aws_subnet" "my_subnet" {
   count = 2
 
