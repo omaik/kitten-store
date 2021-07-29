@@ -17,3 +17,7 @@ output "subnet_ids" {
 output "availability_zones" {
   value = aws_subnet.my_subnet[*].availability_zone
 }
+
+output "web_ip" {
+  value = aws_instance.web.public_ip
+}
