@@ -1,5 +1,6 @@
 provider "aws" {
   region = "us-east-2"
+  profile = "test"
 }
 
 data "aws_availability_zones" "available" {
@@ -129,6 +130,14 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [aws_security_group.ec2_sec_group.id]
   subnet_id = aws_subnet.my_subnet[0].id
 
+  provisioner "remote-exec" {
+   scripts = ["${path.module}/../scripts/install_docker_ec2.sh"]
+   connection {
+     type = "ssh"
+     user = "ec2-user"
+     host = self.public_ip
+   }
+  }
 
   lifecycle {
     ignore_changes = [tags, ami]
