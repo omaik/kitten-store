@@ -67,8 +67,8 @@ resource "aws_key_pair" "id_rsa" {
 }
 
 resource "aws_security_group" "ec2_sec_group" {
-  name        = "ec2_sec_group"
-  description = "For EC2 traffic"
+  name_prefix      = "ec2_sec_group"
+  description = "For EC2 traffic changed 2"
   vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
@@ -97,20 +97,14 @@ resource "aws_security_group" "ec2_sec_group" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = {
     Name = "ec2_sec_group"
   }
 }
-
-
-resource "aws_network_interface" "public" {
-  subnet_id   = aws_subnet.my_subnet[0].id
-
-  tags = {
-    Name = "primary_network_interface"
-  }
-}
-
 
 data "aws_ami" "aws_linux" {
   most_recent = true
@@ -132,18 +126,14 @@ resource "aws_instance" "web" {
   ami           = data.aws_ami.aws_linux.id
   instance_type = "t2.micro"
   key_name = aws_key_pair.id_rsa.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_sec_group.id]
+  subnet_id = aws_subnet.my_subnet[0].id
 
-  network_interface {
-    network_interface_id = aws_network_interface.public.id
-    device_index         = 0
+
+  lifecycle {
+    ignore_changes = [tags, ami]
   }
-
   tags = {
     Name = "Web"
   }
-}
-
-resource "aws_network_interface_sg_attachment" "sg_attachment" {
-  security_group_id    = aws_security_group.ec2_sec_group.id
-  network_interface_id = aws_instance.web.primary_network_interface_id
 }
