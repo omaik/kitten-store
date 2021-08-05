@@ -131,7 +131,7 @@ resource "aws_instance" "web" {
   subnet_id = aws_subnet.my_subnet[0].id
 
   provisioner "remote-exec" {
-   scripts = ["${path.module}/../scripts/install_docker_ec2.sh"]
+   scripts = ["${path.module}/../scripts/install_docker_ec2.sh", "${path.module}/../scripts/run_app_ec2.sh"]
    connection {
      type = "ssh"
      user = "ec2-user"
