@@ -15,6 +15,10 @@ data "http" "myip" {
   url = "http://ipv4.icanhazip.com"
 }
 
+data "template_file" "user_data" {
+  template = "${file("${path.module}/templates/app_user_data.sh.tpl")}"
+}
+
 resource "aws_vpc" "my_vpc" {
   cidr_block = var.cidr_block
   tags = {
@@ -129,15 +133,16 @@ resource "aws_instance" "web" {
   key_name = aws_key_pair.id_rsa.key_name
   vpc_security_group_ids = [aws_security_group.ec2_sec_group.id]
   subnet_id = aws_subnet.my_subnet[0].id
+  user_data = data.template_file.user_data.rendered
 
-  provisioner "remote-exec" {
-   scripts = ["${path.module}/../scripts/install_docker_ec2.sh", "${path.module}/../scripts/run_app_ec2.sh"]
-   connection {
-     type = "ssh"
-     user = "ec2-user"
-     host = self.public_ip
-   }
-  }
+  # provisioner "remote-exec" {
+  #  scripts = ["${path.module}/../scripts/install_docker_ec2.sh", "${path.module}/../scripts/run_app_ec2.sh"]
+  #  connection {
+  #    type = "ssh"
+  #    user = "ec2-user"
+  #    host = self.public_ip
+  #  }
+  # }
 
   lifecycle {
     ignore_changes = [tags, ami]
