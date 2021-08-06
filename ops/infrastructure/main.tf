@@ -3,8 +3,12 @@ provider "aws" {
   profile = "test"
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
+module "vpc" {
+  source = "./modules/aws-vpc"
+
+  vpc_name = "Test"
+  cidr_block = var.cidr_block
+  subnets_count = 2
 }
 
 data "local_file" "id_rsa" {
@@ -19,53 +23,6 @@ data "template_file" "user_data" {
   template = "${file("${path.module}/templates/app_user_data.sh.tpl")}"
 }
 
-resource "aws_vpc" "my_vpc" {
-  cidr_block = var.cidr_block
-  tags = {
-    Name = "my vpc"
-  }
-}
-
-resource "aws_internet_gateway" "my_gw" {
-  vpc_id = aws_vpc.my_vpc.id
-
-  tags = {
-    Name = "my gateway"
-  }
-}
-
-resource "aws_route_table" "my_route_public" {
-  vpc_id = aws_vpc.my_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.my_gw.id
-  }
-
-  tags = {
-    Name = "MyRoute-public"
-  }
-}
-
-resource "aws_subnet" "my_subnet" {
-  count = 2
-
-  vpc_id     = aws_vpc.my_vpc.id
-  cidr_block = cidrsubnet(var.cidr_block, 8, count.index + 1)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "MySubnet-public-${count.index + 1}"
-  }
-}
-
-resource "aws_route_table_association" "route_subnet" {
-  count = length(aws_subnet.my_subnet)
-  subnet_id = element(aws_subnet.my_subnet[*].id, count.index)
-  route_table_id = aws_route_table.my_route_public.id
-}
-
 resource "aws_key_pair" "id_rsa" {
   key_name   = "id_rsa"
   public_key = data.local_file.id_rsa.content
@@ -74,7 +31,7 @@ resource "aws_key_pair" "id_rsa" {
 resource "aws_security_group" "ec2_sec_group" {
   name_prefix      = "ec2_sec_group"
   description = "For EC2 traffic changed 2"
-  vpc_id      = aws_vpc.my_vpc.id
+  vpc_id      = module.vpc.vpc_id
 
   ingress {
     description      = "SSH"
@@ -132,17 +89,8 @@ resource "aws_instance" "web" {
   instance_type = "t2.micro"
   key_name = aws_key_pair.id_rsa.key_name
   vpc_security_group_ids = [aws_security_group.ec2_sec_group.id]
-  subnet_id = aws_subnet.my_subnet[0].id
+  subnet_id = module.vpc.subnet_ids[0]
   user_data = data.template_file.user_data.rendered
-
-  # provisioner "remote-exec" {
-  #  scripts = ["${path.module}/../scripts/install_docker_ec2.sh", "${path.module}/../scripts/run_app_ec2.sh"]
-  #  connection {
-  #    type = "ssh"
-  #    user = "ec2-user"
-  #    host = self.public_ip
-  #  }
-  # }
 
   lifecycle {
     ignore_changes = [tags, ami]
