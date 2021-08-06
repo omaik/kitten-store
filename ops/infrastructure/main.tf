@@ -6,7 +6,7 @@ provider "aws" {
 module "vpc" {
   source = "./modules/aws-vpc"
 
-  vpc_name = "Test"
+  vpc_name = "my vpc"
   cidr_block = var.cidr_block
   subnets_count = 2
 }
