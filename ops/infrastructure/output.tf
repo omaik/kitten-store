@@ -1,6 +1,6 @@
 
 output "web_ip" {
-  value = aws_instance.web.public_ip
+  value = module.instance.public_ip
 }
 
 output "vpc_id" {
