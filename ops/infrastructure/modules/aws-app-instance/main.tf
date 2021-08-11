@@ -84,7 +84,7 @@ resource "aws_instance" "web" {
   ami           = data.aws_ami.aws_linux.id
   instance_type = "t2.micro"
   key_name = aws_key_pair.id_rsa.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_sec_group.id]
+  vpc_security_group_ids = concat([aws_security_group.ec2_sec_group.id], var.assigned_security_groups)
   subnet_id = var.subnet_id
   user_data = data.template_file.user_data.rendered
 
