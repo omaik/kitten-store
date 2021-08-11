@@ -17,6 +17,9 @@ data "http" "myip" {
 
 data "template_file" "user_data" {
   template = "${file("${path.module}/templates/app_user_data.sh.tpl")}"
+  vars = {
+    database_url = var.database_url
+  }
 }
 
 resource "aws_key_pair" "id_rsa" {

@@ -33,6 +33,7 @@ module "instance" {
   vpc_id = local.global_config.vpc_id
   subnet_id = local.global_config.subnet_ids[0]
   assigned_security_groups = [module.db_instance.connector_group_id]
+  database_url = module.db_instance.connection_string
   name = "Webster"
 }
 

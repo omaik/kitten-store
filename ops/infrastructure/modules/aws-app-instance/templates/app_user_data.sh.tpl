@@ -10,4 +10,5 @@ yum install git -y
 cd /home/ec2-user
 git clone https://github.com/omaik/kitten-store.git
 cd kitten-store
+cat "DATABASE_URL=${database_url}" >> ops/compose/dev.env
 sh ops/scripts/up.sh
