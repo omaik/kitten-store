@@ -34,3 +34,13 @@ module "instance" {
   subnet_id = local.global_config.subnet_ids[0]
   name = "Webster"
 }
+
+module "db_instance" {
+  source = "../modules/aws-rds-instance"
+
+  name = "databaser"
+  vpc = {
+    vpc_id = local.global_config.vpc_id
+    subnet_ids = local.global_config.subnet_ids
+  }
+}
