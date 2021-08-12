@@ -12,18 +12,14 @@ terraform {
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 module "vpc" {
   source = "../modules/aws-vpc"
 
   vpc_name = "my vpc"
   cidr_block = var.cidr_block
-  subnets_count = 2
+  availability_zones = data.aws_availability_zones.available.names
 }
-
-# module "instance" {
-#   source = "./modules/aws-app-instance"
-
-#   vpc_id = module.vpc.vpc_id
-#   subnet_id = module.vpc.subnet_ids[0]
-#   name = "Webster"
-# }

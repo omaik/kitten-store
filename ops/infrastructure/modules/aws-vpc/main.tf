@@ -7,8 +7,8 @@ terraform {
   }
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
+locals {
+  availability_zones = sort(var.availability_zones)
 }
 
 resource "aws_vpc" "my_vpc" {
@@ -40,20 +40,20 @@ resource "aws_route_table" "my_route_public" {
 }
 
 resource "aws_subnet" "my_subnet" {
-  count = var.subnets_count
+  for_each = toset(local.availability_zones)
 
   vpc_id     = aws_vpc.my_vpc.id
-  cidr_block = cidrsubnet(var.cidr_block, 8, count.index + 1)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  cidr_block = cidrsubnet(var.cidr_block, 8, index(local.availability_zones, each.key) + 1)
+  availability_zone = each.key
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "MySubnet-public-${count.index + 1}"
+    Name = "MySubnet-public-${index(local.availability_zones, each.key) + 1}"
   }
 }
 
 resource "aws_route_table_association" "route_subnet" {
-  count = length(aws_subnet.my_subnet)
-  subnet_id = element(aws_subnet.my_subnet[*].id, count.index)
+  for_each = aws_subnet.my_subnet
+  subnet_id = each.value.id
   route_table_id = aws_route_table.my_route_public.id
 }

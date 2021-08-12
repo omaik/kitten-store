@@ -8,8 +8,7 @@ variable "cidr_block" {
   description = "CIDR block of VPC"
 }
 
-variable "subnets_count" {
-  type = number
-  description = "Count of subnets to create"
-  default = 2
+variable "availability_zones" {
+  type = list(string)
+  description = "Availability zones to define subnets for"
 }

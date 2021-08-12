@@ -11,9 +11,9 @@ output "rt_id" {
 }
 
 output "subnet_ids" {
-  value = aws_subnet.my_subnet[*].id
+  value = [for s in aws_subnet.my_subnet : s.id]
 }
 
 output "availability_zones" {
-  value = aws_subnet.my_subnet[*].availability_zone
+  value = [for s in aws_subnet.my_subnet : s.availability_zone]
 }
