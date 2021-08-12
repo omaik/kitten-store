@@ -30,7 +30,7 @@ resource "aws_key_pair" "id_rsa" {
 resource "aws_security_group" "ec2_sec_group" {
   name_prefix      = "${var.name}_sec_group"
   description = "For EC2 ${var.name}"
-  vpc_id      = var.vpc_id
+  vpc_id      = var.vpc.vpc_id
 
   ingress {
     description      = "SSH"
@@ -41,12 +41,11 @@ resource "aws_security_group" "ec2_sec_group" {
   }
 
   ingress {
-    description      = "HTTP from outside world"
+    description      = "HTTP from security group"
     from_port        = 80
     to_port          = 80
     protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    security_groups  = [var.load_balancer_group]
   }
 
 
@@ -84,11 +83,12 @@ data "aws_ami" "aws_linux" {
 }
 
 resource "aws_instance" "web" {
+  count = var.instance_count
   ami           = data.aws_ami.aws_linux.id
   instance_type = "t2.micro"
   key_name = aws_key_pair.id_rsa.key_name
   vpc_security_group_ids = concat([aws_security_group.ec2_sec_group.id], var.assigned_security_groups)
-  subnet_id = var.subnet_id
+  subnet_id = element(var.vpc.subnet_ids, count.index)
   user_data = data.template_file.user_data.rendered
 
   lifecycle {

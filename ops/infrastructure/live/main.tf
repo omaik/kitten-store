@@ -24,25 +24,33 @@ data "terraform_remote_state" "global" {
 }
 
 locals {
-  global_config = data.terraform_remote_state.global.outputs
+  vpc = {
+    vpc_id = data.terraform_remote_state.global.outputs.vpc_id,
+    subnet_ids = data.terraform_remote_state.global.outputs.subnet_ids
+  }
 }
 
 module "instance" {
   source = "../modules/aws-app-instance"
 
-  vpc_id = local.global_config.vpc_id
-  subnet_id = local.global_config.subnet_ids[0]
+  vpc = local.vpc
   assigned_security_groups = [module.db_instance.connector_group_id]
+  load_balancer_group = module.load_balancer.security_group_id
   database_url = module.db_instance.connection_string
   name = "Webster"
+  instance_count = 4
+}
+
+module "load_balancer" {
+  source = "../modules/aws-lb"
+
+  vpc = local.vpc
+  instance_ids = module.instance.instance_ids
 }
 
 module "db_instance" {
   source = "../modules/aws-rds-instance"
 
   name = "databaser"
-  vpc = {
-    vpc_id = local.global_config.vpc_id
-    subnet_ids = local.global_config.subnet_ids
-  }
+  vpc = local.vpc
 }

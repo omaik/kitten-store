@@ -3,14 +3,17 @@ variable "name" {
   description = "Name of the instance"
 }
 
-variable "vpc_id" {
-  type = string
-  description = "VPC ID"
+variable "instance_count" {
+  type = number
+  description = "Number of instances"
 }
 
-variable "subnet_id" {
-  type = string
-  description = "Subnet ID"
+variable "vpc" {
+  type = object({
+    vpc_id = string
+    subnet_ids = list(string)
+  })
+  description = "VPC information"
 }
 
 variable "assigned_security_groups" {
@@ -22,4 +25,9 @@ variable "assigned_security_groups" {
 variable "database_url" {
   type = string
   description = "connection string to database"
+}
+
+variable "load_balancer_group" {
+  type = string
+  description = "security group of load balancer"
 }
