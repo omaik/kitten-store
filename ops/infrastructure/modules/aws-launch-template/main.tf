@@ -93,9 +93,11 @@ resource "aws_launch_template" "web" {
   key_name = aws_key_pair.id_rsa3.key_name
   image_id = data.aws_ami.aws_linux.id
   instance_type = "t2.micro"
-  vpc_security_group_ids = concat([aws_security_group.ec2_sec_group.id], var.assigned_security_groups)
   user_data = base64encode(data.template_file.user_data.rendered)
 
+  network_interfaces {
+    security_groups = concat([aws_security_group.ec2_sec_group.id], var.assigned_security_groups)
+  }
 
   tag_specifications {
     resource_type = "instance"
