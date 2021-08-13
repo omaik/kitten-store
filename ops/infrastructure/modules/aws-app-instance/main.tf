@@ -9,10 +9,10 @@ terraform {
 
 resource "aws_instance" "web" {
   count = var.instance_count
-  subnet_id = element(var.vpc.subnet_ids, count.index)
+  # subnet_id = element(var.vpc.subnet_ids, count.index)
   launch_template {
     id = var.launch_template_id
-    version = "$LATEST"
+    version = "$latest"
   }
 
   lifecycle {

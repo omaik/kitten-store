@@ -44,7 +44,7 @@ module "instance" {
   source = "../modules/aws-app-instance"
 
   vpc = local.vpc
-  instance_count = 0
+  instance_count = 2
   launch_template_id = module.launch_template.launch_template_id
 }
 
