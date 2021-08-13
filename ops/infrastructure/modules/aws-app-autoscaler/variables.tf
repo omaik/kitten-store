@@ -1,6 +1,6 @@
-variable "instance_count" {
-  type = number
-  description = "Number of instances"
+variable "name" {
+  type = string
+  description = "Name of the instance"
 }
 
 variable "vpc" {
@@ -13,5 +13,5 @@ variable "vpc" {
 
 variable "launch_template_id" {
   type = string
-  description = "Launch template ID"
+  description = "Launch Template ID"
 }

@@ -42,7 +42,7 @@ resource "aws_lb" "main" {
   name               = "Main"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.lb_sg.id]
+  security_groups    = concat([aws_security_group.lb_sg.id], var.security_groups)
   subnets            = var.vpc.subnet_ids
 }
 
@@ -71,10 +71,15 @@ resource "aws_lb_target_group" "main" {
   }
 }
 
-
 resource "aws_lb_target_group_attachment" "main" {
-  for_each = toset(var.instance_ids)
+  count = length(var.instance_ids)
   target_group_arn = aws_lb_target_group.main.arn
-  target_id        = each.key
+  target_id        = element(var.instance_ids, count.index)
   port             = 80
+}
+
+resource "aws_autoscaling_attachment" "asg_attachment_bar" {
+  count = length(var.autoscaling_group_ids)
+  autoscaling_group_name = element(var.autoscaling_group_ids, count.index)
+  alb_target_group_arn   = aws_lb_target_group.main.arn
 }
