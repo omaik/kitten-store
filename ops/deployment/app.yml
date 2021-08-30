@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kitten_store
+spec:
+  containers:
+  - name: sise
+    image: omaik/kitten-store
+    ports:
+    - containerPort: 1234
