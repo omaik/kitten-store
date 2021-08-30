@@ -69,3 +69,16 @@ spec:
         - name: postgredb
           persistentVolumeClaim:
             claimName: postgres-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - name: psql
+      protocol: TCP
+      port: 5432
+      targetPort: 5432

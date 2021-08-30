@@ -1,10 +1,33 @@
+---
 apiVersion: v1
-kind: Pod
+kind: ConfigMap
 metadata:
-  name: kitten_store
+  name: app-config
+  labels:
+    app: kitten-store
+data:
+  DATABASE_URL: postgresql://postgres:postgres@postgres/dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kitten-store
 spec:
-  containers:
-  - name: sise
-    image: omaik/kitten-store
-    ports:
-    - containerPort: 1234
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kitten-store
+  template:
+    metadata:
+      name: kitten-store
+      labels:
+        app: kitten-store
+    spec:
+      containers:
+      - name: kitten-store
+        image: omaik/kitten-store
+        ports:
+        - containerPort: 9292
+        envFrom:
+        - configMapRef:
+            name: app-config
