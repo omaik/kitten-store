@@ -7,6 +7,7 @@ metadata:
     app: kitten-store
 data:
   DATABASE_URL: postgresql://postgres:postgres@postgres/dev
+  RACK_ENV: development
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -26,8 +27,23 @@ spec:
       containers:
       - name: kitten-store
         image: omaik/kitten-store
+        command: ["bundle", "exec", "rackup", "--port", "3000", "--host", "0000"]
         ports:
-        - containerPort: 9292
+        - containerPort: 3000
         envFrom:
         - configMapRef:
             name: app-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kitten-store
+spec:
+  type: LoadBalancer
+  selector:
+    app: kitten-store
+  ports:
+    - name: app
+      protocol: TCP
+      port: 80
+      targetPort: 3000

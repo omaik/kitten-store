@@ -3,7 +3,7 @@ services:
   app:
     env_file:
       - $ENV_FILE
-    command: ["rackup", "--port", "9292", "--host", "0000"]
+    command: ["bundle", "exec", "rackup", "--port", "9292", "--host", "0000"]
     volumes:
       - .:/app
     ports:
