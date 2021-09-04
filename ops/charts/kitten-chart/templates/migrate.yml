@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrate-{{ .Release.Revision }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-migrate
+        image: {{ .Values.app.image }}
+        command: ["sh", "-c", "{{ .Values.migrate.command }}"]
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-app-config
+      restartPolicy: Never
+  backoffLimit: 0
