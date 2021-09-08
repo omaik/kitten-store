@@ -10,6 +10,8 @@ gem 'activerecord'
 gem 'pg', '~> 0.18'
 gem 'sinatra-activerecord'
 
+gem 'knapsack'
+
 group :development, :test do
   gem 'rubocop'
   gem 'rubocop-rspec'

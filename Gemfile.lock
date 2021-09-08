@@ -22,6 +22,8 @@ GEM
     ffaker (2.10.0)
     i18n (1.1.0)
       concurrent-ruby (~> 1.0)
+    knapsack (4.0.0)
+      rake
     minitest (5.11.3)
     mustermann (1.0.3)
     parallel (1.20.1)
@@ -87,6 +89,7 @@ DEPENDENCIES
   database_cleaner
   factory_bot
   ffaker
+  knapsack
   pg (~> 0.18)
   rack
   rack-test
