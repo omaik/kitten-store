@@ -1,0 +1,19 @@
+name: Rspec with compose
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test
+        run: ops/scripts/run.sh run_tests
+        env:
+          ENVIRONMENT: test
