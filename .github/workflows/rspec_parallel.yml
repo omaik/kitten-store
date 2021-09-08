@@ -1,0 +1,40 @@
+name: Rspec Parallel
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    services:
+      database:
+        image: postgres:12.1-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: pass
+        ports:
+          - '5432:5432'
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.4.9
+        bundler: Gemfile.lock
+    - name: Install dependencies
+      run: |
+        bundle config path ~/.bundle
+        bundle install --jobs 4 --retry 3
+    - name: Set up Database
+      env:
+        DATABASE_URL: postgresql://app:pass@localhost:5432/app_test
+        RACK_ENV: test
+      run: |
+        bundle exec rake db:create
+        bundle exec rake db:migrate
