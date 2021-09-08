@@ -1,4 +1,4 @@
-name: quality gates
+name: Rubocop
 
 on:
   push:
