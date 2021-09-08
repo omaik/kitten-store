@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Build image
+        run: ops/scripts/build.sh
+        env:
+          TAG: latest
       - name: Test
         run: ops/scripts/run.sh run_tests
         env:
