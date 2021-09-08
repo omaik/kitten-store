@@ -7,4 +7,6 @@ require 'sinatra/activerecord/rake'
 #   Knapsack.load_tasks
 # end
 
+require 'knapsack'
+
 Knapsack.load_tasks
