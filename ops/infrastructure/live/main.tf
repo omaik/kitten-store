@@ -72,3 +72,10 @@ module "db_instance" {
   name = "databaser"
   vpc = local.vpc
 }
+
+module "eks_cluster" {
+  source = "../modules/aws-eks-cluster"
+  name = "test_cluster"
+  vpc = local.vpc
+  assigned_security_groups = [module.db_instance.connector_group_id]
+}
