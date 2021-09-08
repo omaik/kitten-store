@@ -1,19 +1,35 @@
-name: reviewdog
-on: [pull_request]
+name: quality gates
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
 jobs:
   rubocop:
-    name: runner / rubocop
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out code
-        uses: actions/checkout@v1
-      - uses: ruby/setup-ruby@v1
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.4.7
-      - name: rubocop
-        uses: reviewdog/action-rubocop@v2
+          ruby-version: 2.4.9
+          bundler: Gemfile.lock
+      - name: Cache dependencies
+        uses: actions/cache@v1
         with:
-          rubocop_version: gemfile
-          rubocop_extensions: rubocop-rails:gemfile rubocop-rspec:gemfile
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review # Default is github-pr-check
+          path: ~/.bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Install dependencies
+        run: |
+          bundle config path ~/.bundle
+          bundle install --jobs 4 --retry 3
+      - name: Run rubocop
+        run: bundle exec rubocop --parallel
