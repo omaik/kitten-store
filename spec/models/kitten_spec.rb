@@ -16,6 +16,8 @@ RSpec.describe KittensStore::Models::Kitten do
       expect(kitten).not_to be_valid
     end
 
+    it { raise 'fails' }
+
     it 'validates price' do
       kitten.price = nil
       expect(kitten).not_to be_valid
