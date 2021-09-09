@@ -49,7 +49,7 @@ jobs:
       - name: Deploy application
         run: ops/scripts/deploy.sh
         env:
-          VERSION: ${{ env.GITHUB_SHA }}
+          VERSION: ${{ github.sha }}
 
       - name: Get Deployments
         run: kubectl get deployments
