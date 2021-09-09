@@ -1,5 +1,5 @@
 environment: 'development'
-database_url: 'postgres://oleh:UQ_lg0crfRKGJyCw@id-databaser20210906183905732100000002.c9chl6i4rd9u.us-east-2.rds.amazonaws.com:5432/databaser'
+database_url: 'postgres://oleh:ghU9TNe-RoG-wREz@id-databaser20210909060947650900000002.c9chl6i4rd9u.us-east-2.rds.amazonaws.com:5432/databaser'
 
 app:
   replica_count: 2

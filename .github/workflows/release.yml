@@ -45,3 +45,15 @@ jobs:
 
       - name:  Test cluster access
         run: kubectl get nodes
+
+      - name: Deploy application
+        run: ops/scripts/deploy.sh
+
+      - name: Get Deployments
+        run: kubectl get deployments
+
+      - name: Get Services
+        run: kubectl get services
+
+      - name: Get Pods
+        run: kubectl get pods
