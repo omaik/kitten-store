@@ -2,6 +2,7 @@ environment: 'development'
 database_url: 'postgres://oleh:ghU9TNe-RoG-wREz@id-databaser20210909060947650900000002.c9chl6i4rd9u.us-east-2.rds.amazonaws.com:5432/databaser'
 
 app:
+  version: '0'
   replica_count: 2
   image: omaik/kitten-store
   command: "bundle exec rackup --port 3000 --host 0.0.0.0"

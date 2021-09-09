@@ -1,5 +1,12 @@
+environment: 'development'
+database_url: 'change_me'
+
 app:
-  replica_count: 1
+  version: '0'
+  replica_count: 2
+  image: change_me
+  command: "bundle exec rackup --port 3000 --host 0.0.0.0"
+  port: 3000
   resources:
     requests:
       memory: "64Mi"
@@ -7,3 +14,6 @@ app:
     limits:
       memory: "128Mi"
       cpu: "500m"
+
+migrate:
+  command: "bundle exec rake db:create db:migrate db:seed"

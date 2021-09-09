@@ -12,7 +12,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-app
+  name: {{ .Release.Name }}-app-{{.Values.app.version}}
 spec:
   replicas: {{ .Values.app.replica_count }}
   selector:
