@@ -8,6 +8,20 @@ env:
   CLUSTER_NAME: test_cluster
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build the Docker image
+        run: ops/scripts/build.sh
+        env:
+          TAG: latest
+      - name: Login to Docker
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push latest image
+        run: ops/scripts/publish.sh
+        env:
+          TAG: latest
   deploy-to-eks:
     needs: build
     runs-on: ubuntu-latest
