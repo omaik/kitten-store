@@ -12,7 +12,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-app-{{.Values.app.version}}
+  name: {{ .Release.Name }}-app
 spec:
   replicas: {{ .Values.app.replica_count }}
   selector:
@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}
-        image: {{ .Values.app.image }}
+        image: {{ .Values.app.image }}:{{ .Values.app.version }}
         command: ["sh", "-c", "{{ .Values.app.command }}"]
         ports:
         - containerPort: {{ .Values.app.port }}
