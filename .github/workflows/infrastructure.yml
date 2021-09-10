@@ -40,6 +40,19 @@ jobs:
     - name: Terraform Apply
       working-directory: ./ops/infrastructure/live
       run: terraform apply -auto-approve
+    - name: Print Out Artifacts
+      working-directory: ./ops/infrastructure/live
+      run: |
+        mkdir artifacts
+        terraform-bin output -raw  database_url > artifacts/database_url.txt
+        terraform-bin output -raw eks_cluster_name  > artifacts/eks_cluster_name.txt
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: infrastructure
+        path: ops/infrastructure/live/artifacts
+        retention-days: 10
 
 
   plan:
