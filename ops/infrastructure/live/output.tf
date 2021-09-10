@@ -11,3 +11,7 @@ output "eks_cluster_name" {
 output "eks_certificate_authority" {
   value = module.eks_cluster.cluster_certificate_authority_data
 }
+
+output "eks_cluster_endpoint" {
+  value = module.eks_cluster.cluster_endpoint
+}
