@@ -32,5 +32,5 @@ jobs:
       run: terraform init
 
     - name: Terraform destroy
-      working-directory: ./ops/infrastructure/
+      working-directory: ./ops/infrastructure/live
       run: terraform destroy -auto-approve

@@ -75,7 +75,7 @@ resource "aws_eks_node_group" "workers" {
   subnet_ids      = var.vpc.subnet_ids
   launch_template {
     id = resource.aws_launch_template.worker.id
-    version = "$Latest"
+    version = resource.aws_launch_template.worker.latest_version
   }
 
   scaling_config {
