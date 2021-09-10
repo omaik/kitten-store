@@ -1,7 +1,7 @@
 
 output "database_url" {
   sensitive = true
-  value = module.db_instance.connection_string
+  value     = module.db_instance.connection_string
 }
 
 output "eks_cluster_name" {
@@ -10,4 +10,8 @@ output "eks_cluster_name" {
 
 output "eks_certificate_authority" {
   value = module.eks_cluster.cluster_certificate_authority_data
+}
+
+output "eks_cluster_endpoint" {
+  value = module.eks_cluster.cluster_endpoint
 }
