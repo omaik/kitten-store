@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}
-        image: {{ .Values.app.image }}:{{ .Values.app.version }}
+        image: {{ .Values.app.image }}
         command: ["sh", "-c", "{{ .Values.app.command }}"]
         ports:
         - containerPort: {{ .Values.app.port }}
