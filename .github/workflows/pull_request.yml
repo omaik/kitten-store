@@ -1,4 +1,4 @@
-name: Terraform
+name: Pull Request
 on:
   pull_request:
     branches:
@@ -6,10 +6,11 @@ on:
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-east-2
+  PR_ID: ${{ github.event.pull_request.number  }}
 
 jobs:
-  plan:
-    if: github.event_name == 'pull_request'
+  infrastructure_check:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -61,6 +62,138 @@ jobs:
           </details>
 
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.2
+
+    - name: Terraform Format
+      id: fmt
+      working-directory: ./ops/infrastructure/pull_request
+      run: terraform fmt -check
+
+    - name: Terraform Init
+      working-directory: ./ops/infrastructure/pull_request
+      id: init
+      run: terraform init -backend-config="key=path/${PR_ID}.tfstate"
+
+    - name: Terraform Validate
+      working-directory: ./ops/infrastructure/pull_request
+      id: validate
+      run: terraform validate -no-color
+    - name: Terraform Apply
+      working-directory: ./ops/infrastructure/pull_request
+      run: terraform apply -auto-approve -var="pr_id=${PR_ID}"
+    - name: Print Out Artifacts
+      working-directory: ./ops/infrastructure/pull_request
+      run: |
+        mkdir artifacts
+        terraform-bin output -raw  database_url > artifacts/database_url.txt
+        terraform-bin output -raw cluster_name  > artifacts/eks_cluster_name.txt
+        terraform-bin output -raw namespace  > artifacts/eks_namespace.txt
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: infrastructure
+        path: ops/infrastructure/pull_request/artifacts
+        retention-days: 10
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: ops/scripts/build.sh
+      env:
+        TAG: ${{ github.sha }}
+    - name: Login to Docker
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Push latest image
+      run: ops/scripts/publish.sh
+      env:
+        TAG: ${{ github.sha }}
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: artifacts
+        retention-days: 10
+
+  release:
+    needs: [build, infrastructure]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v2
+    - name: Store ENV
+      run: |
+        echo "docker_image=$(cat build/docker_image.txt)" >> $GITHUB_ENV
+        echo "cluster_name=$(cat infrastructure/eks_cluster_name.txt)" >> $GITHUB_ENV
+        echo "namespace=$(cat infrastructure/eks_namespace.txt)" >> $GITHUB_ENV
+        echo "database_url=$(cat infrastructure/database_url.txt)" >> $GITHUB_ENV
+
+    - name: Configure AWS client
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name:  Login to cluster
+      run: >
+        aws eks update-kubeconfig
+        --region ${AWS_REGION}
+        --name ${{ env.cluster_name }}
+
+    - name:  Test cluster access
+      run: kubectl get nodes
+
+    - name: Deploy application
+      run: ops/scripts/deploy.sh
+      env:
+        VERSION: ${{ github.sha }}
+        DOCKER_IMAGE: ${{ env.docker_image }}
+        DATABASE_URL: ${{ env.database_url }}
+        NAMESPACE: ${{ env.namespace }}
+
+    - name: Get Deployments
+      run: kubectl get deployments
+
+    - name: Get Services
+      run: kubectl get services
+
+    - name: Get Pods
+      run: kubectl get pods
+    - name: Extract APP URL
+      id: get_application_url
+      run: |
+        echo "::set-output name=url::$(kubectl get services kitten-store --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+    - name: Test Connection
+      run: |
+        sleep 100 && curl ${{ steps.get_application_url.outputs.url }}
+
+    - name: Update Pull Request
+      uses: actions/github-script@0.9.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `${{ steps.get_application_url.outputs.url }}`;
 
           github.issues.createComment({
             issue_number: context.issue.number,
