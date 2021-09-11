@@ -1,5 +1,5 @@
 output "database_url" {
-  value     = "postgres://$postgres:${random_password.password.result}@${kubernetes_service.postgres.spec[0].cluster_ip}:5432/app"
+  value     = "postgres://postgres:${random_password.password.result}@${kubernetes_service.postgres.spec[0].cluster_ip}:5432/app"
   sensitive = true
 }
 
