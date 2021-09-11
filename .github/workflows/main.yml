@@ -53,6 +53,7 @@ jobs:
         retention-days: 10
 
   build:
+    needs: terraform_apply
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -72,3 +73,17 @@ jobs:
         name: build
         path: artifacts
         retention-days: 10
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v2
+    - name: Debug
+      run: |
+        ls
+        cat docker_image.txt
+        cat eks_cluster_name.txt
+        cat database_url.txt
