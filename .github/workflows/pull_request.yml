@@ -173,17 +173,17 @@ jobs:
         NAMESPACE: ${{ env.namespace }}
 
     - name: Get Deployments
-      run: kubectl get deployments
+      run: kubectl get deployments -n ${{ env.namespace }}
 
     - name: Get Services
-      run: kubectl get services
+      run: kubectl get services -n ${{ env.namespace }}
 
     - name: Get Pods
-      run: kubectl get pods
+      run: kubectl get pods -n ${{ env.namespace }}
     - name: Extract APP URL
       id: get_application_url
       run: |
-        echo "::set-output name=url::$(kubectl get services kitten-store --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+        echo "::set-output name=url::$(kubectl get services kitten-store -n ${{ env.namespace }} --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
     - name: Test Connection
       run: |
         sleep 100 && curl ${{ steps.get_application_url.outputs.url }}
