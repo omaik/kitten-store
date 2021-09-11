@@ -7,6 +7,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: us-east-2
+  PR_ID: ${{ github.event.pull_request.number  }}
 
 jobs:
   terraform_apply:
@@ -28,7 +29,7 @@ jobs:
     - name: Terraform Init
       working-directory: ./ops/infrastructure/pull_request
       id: init
-      run: terraform init -backend-config="key=path/${{ github.event.pull_request.number }}.tfstate"
+      run: terraform init -backend-config="key=path/${PR_ID}.tfstate"
 
     - name: Terraform Validate
       working-directory: ./ops/infrastructure/pull_request
@@ -36,7 +37,7 @@ jobs:
       run: terraform validate -no-color
     - name: Terraform Apply
       working-directory: ./ops/infrastructure/pull_request
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve var="id=${PR_ID}"
     - name: Print Out Artifacts
       working-directory: ./ops/infrastructure/pull_request
       run: |
