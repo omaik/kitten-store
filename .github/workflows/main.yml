@@ -117,3 +117,10 @@ jobs:
 
     - name: Get Pods
       run: kubectl get pods
+    - name: Extract APP URL
+      id: get_application_url
+      run: |
+        echo "::set-output name=url::$(kubectl get services kitten-store --output jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+    - name: Test Connection
+      run: |
+        sleep 100 && curl ${{ steps.get_application_url.outputs.url }}
