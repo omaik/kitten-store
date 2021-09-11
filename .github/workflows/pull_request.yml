@@ -194,7 +194,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const output = `$ {{steps.get_application_url.outputs.url}}`;
+          const output = `${{ steps.get_application_url.outputs.url }}`;
 
           github.issues.createComment({
             issue_number: context.issue.number,
