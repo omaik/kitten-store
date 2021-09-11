@@ -10,7 +10,7 @@ env:
   PR_ID: ${{ github.event.pull_request.number  }}
 
 jobs:
-  terraform_apply:
+  infrastructure:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -54,7 +54,6 @@ jobs:
         retention-days: 10
 
   build:
-    needs: terraform_apply
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -75,34 +74,35 @@ jobs:
         path: artifacts
         retention-days: 10
 
-  # release:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v1
-  #   - name: Download all workflow run artifacts
-  #     uses: actions/download-artifact@v2
-  #   - name: Store ENV
-  #     run: |
-  #       echo "docker_image=$(cat build/docker_image.txt)" >> $GITHUB_ENV
-  #       echo "cluster_name=$(cat infrastructure/eks_cluster_name.txt)" >> $GITHUB_ENV
-  #       echo "database_url=$(cat infrastructure/database_url.txt)" >> $GITHUB_ENV
+  release:
+    needs: [build, infrastructure]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v2
+    - name: Store ENV
+      run: |
+        echo "docker_image=$(cat build/docker_image.txt)" >> $GITHUB_ENV
+        echo "cluster_name=$(cat infrastructure/eks_cluster_name.txt)" >> $GITHUB_ENV
+        echo "namespace=$(cat infrastructure/eks_namespace.txt)" >> $GITHUB_ENV
+        echo "database_url=$(cat infrastructure/database_url.txt)" >> $GITHUB_ENV
 
-  #   - name: Configure AWS client
-  #     uses: aws-actions/configure-aws-credentials@v1
-  #     with:
-  #       aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ${{ env.AWS_REGION }}
+    - name: Configure AWS client
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
-  #   - name:  Login to cluster
-  #     run: >
-  #       aws eks update-kubeconfig
-  #       --region ${AWS_REGION}
-  #       --name ${{ env.cluster_name }}
+    - name:  Login to cluster
+      run: >
+        aws eks update-kubeconfig
+        --region ${AWS_REGION}
+        --name ${{ env.cluster_name }}
 
-  #   - name:  Test cluster access
-  #     run: kubectl get nodes
+    - name:  Test cluster access
+      run: kubectl get nodes
 
   #   - name: Deploy application
   #     run: ops/scripts/deploy.sh
