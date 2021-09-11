@@ -43,7 +43,7 @@ jobs:
         mkdir artifacts
         terraform-bin output -raw  database_url > artifacts/database_url.txt
         terraform-bin output -raw cluster_name  > artifacts/eks_cluster_name.txt
-        terraform-bin output -raw namespace  > artifacts/eks_namespacee.txt
+        terraform-bin output -raw namespace  > artifacts/eks_namespace.txt
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
