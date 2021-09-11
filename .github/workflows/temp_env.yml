@@ -28,7 +28,7 @@ jobs:
     - name: Terraform Init
       working-directory: ./ops/infrastructure/pull_request
       id: init
-      run: terraform init -backend-config="key=path/${{ context.issue.number }}.tfstate"
+      run: terraform init -backend-config="key=path/${{ github.event.pull_request.number }}.tfstate"
 
     - name: Terraform Validate
       working-directory: ./ops/infrastructure/pull_request
