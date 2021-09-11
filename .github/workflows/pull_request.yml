@@ -188,3 +188,17 @@ jobs:
     - name: Test Connection
       run: |
         sleep 100 && curl ${{ steps.get_application_url.outputs.url }}
+
+    - name: Update Pull Request
+      uses: actions/github-script@0.9.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `$ {{steps.get_application_url.outputs.url}}`;
+
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
