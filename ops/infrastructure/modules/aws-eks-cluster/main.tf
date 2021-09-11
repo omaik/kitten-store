@@ -113,6 +113,10 @@ resource "aws_security_group" "worker_group" {
   tags = {
    "kubernetes.io/cluster/${var.name}" = "shared"
   }
+
+  lifecycle {
+    ignore_changes = [ ingress ]
+  }
 }
 
 resource "aws_launch_template" "worker" {
