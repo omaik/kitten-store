@@ -27,7 +27,7 @@ data "terraform_remote_state" "live" {
 locals {
   cluster_name     = data.terraform_remote_state.live.outputs.eks_cluster_name
   cluster_endpoint = data.terraform_remote_state.live.outputs.eks_cluster_endpoint
-  cluster_ca = data.terraform_remote_state.live.outputs.eks_certificate_authority
+  cluster_ca       = data.terraform_remote_state.live.outputs.eks_certificate_authority
 }
 
 
@@ -59,19 +59,19 @@ resource "kubernetes_namespace" "test" {
 
 resource "kubernetes_config_map" "database_config" {
   metadata {
-    name = "database-config"
+    name      = "database-config"
     namespace = kubernetes_namespace.test.metadata[0].name
   }
   data = {
-    POSTGRES_DB = "postgresdb"
-    POSTGRES_USER = "postgres"
+    POSTGRES_DB       = "postgresdb"
+    POSTGRES_USER     = "postgres"
     POSTGRES_PASSWORD = random_password.password.result
   }
 }
 
 resource "kubernetes_deployment" "postgres" {
   metadata {
-    name = "postgres"
+    name      = "postgres"
     namespace = kubernetes_namespace.test.metadata[0].name
   }
 
@@ -93,8 +93,8 @@ resource "kubernetes_deployment" "postgres" {
 
       spec {
         container {
-          image = "postgres:10.4"
-          name = "postgres"
+          image             = "postgres:10.4"
+          name              = "postgres"
           image_pull_policy = "IfNotPresent"
           port {
             container_port = 5432
@@ -113,11 +113,11 @@ resource "kubernetes_deployment" "postgres" {
 
 resource "kubernetes_service" "postgres" {
   metadata {
-    name = "postgres"
+    name      = "postgres"
     namespace = kubernetes_namespace.test.metadata[0].name
   }
   spec {
-    selector = kubernetes_deployment.postgres.spec[0].selector[0].match_labels
+    selector         = kubernetes_deployment.postgres.spec[0].selector[0].match_labels
     session_affinity = "ClientIP"
     port {
       port        = 5432
