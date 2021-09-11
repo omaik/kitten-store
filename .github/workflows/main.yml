@@ -55,14 +55,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Build the Docker image
-        run: ops/scripts/build.sh
-        env:
-          TAG: ${{ github.sha }}
-      - name: Login to Docker
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - name: Push latest image
-        run: ops/scripts/publish.sh
-        env:
-          TAG: ${{ github.sha }}
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: ops/scripts/build.sh
+      env:
+        TAG: ${{ github.sha }}
+    - name: Login to Docker
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Push latest image
+      run: ops/scripts/publish.sh
+      env:
+        TAG: ${{ github.sha }}
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: infrastructure
+        path: artifacts
+        retention-days: 10
