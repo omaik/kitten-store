@@ -7,7 +7,6 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: us-east-2
-  CLUSTER_NAME: test_cluster
 
 jobs:
   terraform_apply:
@@ -86,9 +85,19 @@ jobs:
         echo "docker_image=$(cat build/docker_image.txt)" >> $GITHUB_ENV
         echo "cluster_name=$(cat infrastructure/eks_cluster_name.txt)" >> $GITHUB_ENV
         echo "database_url=$(cat infrastructure/database_url.txt)" >> $GITHUB_ENV
-    - name: Debug
-      run: |
-        echo "${{ env.docker_image }}"
-        echo "${{ env.cluster_name }}"
-        echo "----\n"
-        echo "${{ env.database_url }}"
+
+    - name: Configure AWS client
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name:  Login to cluster
+      run: >
+        aws eks update-kubeconfig
+        --region ${AWS_REGION}
+        --name ${{ env.cluster_name }}
+
+    - name:  Test cluster access
+      run: kubectl get nodes
