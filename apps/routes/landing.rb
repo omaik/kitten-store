@@ -4,7 +4,7 @@ module KittensStore
   module Routes
     class Landing < Sinatra::Application
       get '/' do
-        'Welcome! This is the best Kittens Store in the world! V6'
+        'Welcome! This is the best Kittens Store in the world! V7'
       end
     end
   end
