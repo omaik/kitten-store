@@ -37,7 +37,7 @@ jobs:
       run: terraform validate -no-color
     - name: Terraform Apply
       working-directory: ./ops/infrastructure/pull_request
-      run: terraform apply -auto-approve var="id=${PR_ID}"
+      run: terraform apply -auto-approve var="pr_id=${PR_ID}"
     - name: Print Out Artifacts
       working-directory: ./ops/infrastructure/pull_request
       run: |
