@@ -1,61 +1,47 @@
-name: deploy to EKS
-on:
-  push:
-    branches:
-      - master
-env:
-  AWS_REGION: us-east-2
-  CLUSTER_NAME: test_cluster
+# name: deploy to EKS
+# on:
+#   push:
+#     branches:
+#       - master
+# env:
+#   AWS_REGION: us-east-2
+#   CLUSTER_NAME: test_cluster
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Build the Docker image
-        run: ops/scripts/build.sh
-        env:
-          TAG: ${{ github.sha }}
-      - name: Login to Docker
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - name: Push latest image
-        run: ops/scripts/publish.sh
-        env:
-          TAG: ${{ github.sha }}
-  deploy-to-eks:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+# jobs:
+  # deploy-to-eks:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-      - name: Checkout
-        uses: actions/checkout@v2
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Configure AWS client
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+  #     - name: Configure AWS client
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name:  Login to cluster
-        run: >
-          aws eks update-kubeconfig
-          --region ${AWS_REGION}
-          --name ${CLUSTER_NAME}
+  #     - name:  Login to cluster
+  #       run: >
+  #         aws eks update-kubeconfig
+  #         --region ${AWS_REGION}
+  #         --name ${CLUSTER_NAME}
 
-      - name:  Test cluster access
-        run: kubectl get nodes
+  #     - name:  Test cluster access
+  #       run: kubectl get nodes
 
-      - name: Deploy application
-        run: ops/scripts/deploy.sh
-        env:
-          VERSION: ${{ github.sha }}
+  #     - name: Deploy application
+  #       run: ops/scripts/deploy.sh
+  #       env:
+  #         VERSION: ${{ github.sha }}
 
-      - name: Get Deployments
-        run: kubectl get deployments
+  #     - name: Get Deployments
+  #       run: kubectl get deployments
 
-      - name: Get Services
-        run: kubectl get services
+  #     - name: Get Services
+  #       run: kubectl get services
 
-      - name: Get Pods
-        run: kubectl get pods
+  #     - name: Get Pods
+  #       run: kubectl get pods
