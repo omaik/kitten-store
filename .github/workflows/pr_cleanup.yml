@@ -1,0 +1,43 @@
+name: Cleanup PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_id:
+        description: Pull Request ID
+        required: true
+  pull_request:
+    types: [closed]
+
+env:
+  PR_ID: pr-${{ github.event.number || github.event.inputs.pr_id }}
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.2
+
+    - name: Terraform Format
+      id: fmt
+      working-directory: ./ops/infrastructure/pull_request
+      run: terraform fmt -check
+
+    - name: Terraform Init
+      working-directory: ./ops/infrastructure/pull_request
+      id: init
+      run: terraform init -backend-config="key=path/${PR_ID}.tfstate"
+
+    - name: Terraform Validate
+      working-directory: ./ops/infrastructure/pull_request
+      id: validate
+      run: terraform validate -no-color
+    - name: Terraform Destroy
+      working-directory: ./ops/infrastructure/pull_request
+      run: terraform destroy -auto-approve -var="pr_id=${PR_ID}"
